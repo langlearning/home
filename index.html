@@ -30,10 +30,10 @@
 
         nav, body > div {
             position: absolute;
-            width: 70%;
+            width: 86%;
             height: 50%;
             top: 30%;
-            left: 15%;
+            left: 7%;
             transition: .15s cubic-bezier(.65,0,.84,-0.43);
             transform-origin: 50% 20%;
         }
@@ -43,7 +43,7 @@
             width: 47%;
             height: 10vw;
             margin: 15px 0;
-            font-size: 2.5vw;
+            font-size: 3.5vw;
             border-radius: 30px;
             transition: .5s cubic-bezier(.16,1.43,.29,1);
             background-color: black;
@@ -62,25 +62,26 @@
         
         #start {
             width: 100%;
-            height: 20%;
-            font-size: 2em;
+            height: 20vw;
+            font-size: 6vw;
             color: white;
             text-shadow: 0 0 6.96px hsl(0, 0%, 100%, 0.2), 0 0 13.93px hsl(0, 0%, 100%, 1.41), 0 0 27.86px hsl(0, 0%, 100%, 0.7), 0 0 55.72px hsl(0, 0%, 100%, 0.35), 0 0 111.43px hsl(0, 0%, 100%, 0.18), 0 0 222.86px hsl(0, 0%, 100%, 0.09), 0 0 445.72px hsl(0, 0%, 100%, 0.04), 0 0 891.44px hsl(0, 0%, 100%, 0.02), 0 0 1782.89px hsl(0, 0%, 100%, 0.01);
         }
 
         .back {
            height: 5vw;
-           left: 1%;
-           top: -1.8%;
+           left: 7%;
+           top: 2%;
            width: 10vw;
            font-size: 3vw;
-           position: absolute;
+           position: sticky;
         }
 
         #wordList, #settings {
             transform: translateX(100vw);
             height: 90vh;
-            width: 70%;
+            width: 100%;
+            left: 0%;
             top: 5%;
             overflow-y: auto;
             overflow-x: hidden;
@@ -126,7 +127,7 @@
         #session span {
             background-color: rgb(0, 0, 0);
             margin: 0 0 20px 0;
-            padding: 5px 15% 22px 15%;
+            padding: 5px 10% 22px 10%;
             border-radius: 40px;
             border: 3px solid white;
             text-align: center;
@@ -166,7 +167,7 @@
         }
 
         #wordList input {
-            width: calc(28vw - 30px);
+            width: calc(38vw - 30px);
             height: 3.5vh;
             font-size: 16px;
         }
@@ -207,7 +208,7 @@
             left: 28vw;
             height: fit-content;
             bottom: 5vh;
-            background-color: #00ff0050;
+            background-color: #00ff00d3;
             border: 3px solid rgb(0, 0, 0);
             border-radius: 20px;
             box-shadow: 0 0 15px black;
@@ -240,7 +241,7 @@
 
     <div id="wordList">
         <button onclick="transitionScenes('wordList', 'home', 'right');" class="back">&larr;</button>
-        <button onclick="addNewWord();" class="back" style="position: absolute; left: calc(20px + 78%); font-size: 4vw;">+</button>
+        <button onclick="addNewWord();" class="back" style="left: calc(20px + 78%); font-size: 4vw;">+</button>
         <h1>all words:</h1> <br> <br>
     </div>
 
@@ -253,10 +254,10 @@
     
     <div id="session">
         <button onclick="stage=words.length; question=false; next(); popup(true, `session cancelled`)" style="font-size: 25px;" class="back">&larr;</button>
-        <button onclick="inverted=!inverted; popup(false, `translations inverted`, 45)" style="position: absolute; left: calc(30px + 60%); font-size: 20px;" class="back">invert</button>
+        <button onclick="inverted=!inverted; inverted ? this.textContent=`pl > en` : this.textContent=`en > pl`" style="position: absolute; left: calc(30px + 60%); font-size: 20px; width: 90px;" class="back">en > pl</button>
         <span id="score">0/0</span>
         <span id="q">
-            <h2>translate:</h2>
+            <h2 id="info">translate:</h2>
             <h1 id="word">example</h1>
         </span>
         <input type="text" id="mainInput">
@@ -266,6 +267,11 @@
     <div id="popUp"></div>
 
     <script>
+        window.addEventListener('resize', function() {
+            document.body.style.height = `${window.innerHeight}px`;
+        });
+
+
         window.onload = function() {
             document.body.style.display = `none`;
             setTimeout(() => {
@@ -370,19 +376,29 @@
         }
 
 
-        
+        const info = document.getElementById('info');
         function next(start) {
             if(question) {
-                if(mainInput.value.toLowerCase() == currentTranslation.toLowerCase()) {
+                const comparisonResult = compareTranslations(mainInput.value, currentTranslation);
+                if (comparisonResult === "correct") {
                     mainInput.style.outline = '2px solid rgb(0, 255, 76)';
+                    info.textContent = "correct!";
+                    info.style.color = "rgb(0, 255, 76)";
                     correct = true;
                     stage++;
                     mainInput.disabled = true;
-                } else {
+                    word.innerHTML = `${currentWord} - ${currentTranslation}`;
+                } else if (comparisonResult === "misspelled") {
+                    info.textContent = "typo, try again";
+                    mainInput.value = '';
+                    return;
+                } else if (comparisonResult === "incorrect") {
                     mainInput.style.outline = '2px solid rgb(255, 0, 0)';
+                    info.textContent = "incorrect";
+                    info.style.color = "rgb(255, 0, 0)";
                     correct = false;
-                    mainInput.value = currentTranslation;
                     mainInput.disabled = true;
+                    word.innerHTML = `${currentWord} - ${currentTranslation}`;
                 }
             } else {
                 if(stage==words.length) {
@@ -404,6 +420,8 @@
                     popup(false, `congrats!<br>first try: ${firstTry}/${words.length}`)
                     return;
                 }
+                info.textContent = "translate:"
+                info.style.color = "rgb(163, 163, 163)"
 
                 if(!correct) {
                     incorrectWords.push(wordPool[randomIndex]);
@@ -444,6 +462,24 @@
                 document.getElementById('score').style.width = `${(document.getElementById('q').getBoundingClientRect().width)*.1}px`;
             }
         }
+
+        let ut;
+        let ct;
+        function compareTranslations(userTranslation, correctTranslation) {
+            ut = userTranslation.toLowerCase().replace(/[^a-z]/g, '');
+            ct = correctTranslation.toLowerCase().replace(/[^a-z]/g, '');
+            console.log(ut);
+            console.log(ct);
+            if(ut==ct) {
+                console.log('c')
+                return "correct";
+            } else if (ut.length==ct.length) {
+                return "misspelled";
+            } else {
+                return "incorrect";
+            }
+        }
+
 
         const wordListDiv = document.getElementById('wordList');
         const wleContent = wordListDiv.innerHTML;
@@ -569,10 +605,10 @@
         const popMsg = document.getElementById('popUp');
         function popup(error, msg, y=30) {
             if(error) {
-                popMsg.style.backgroundColor = "#ff000050";
+                popMsg.style.backgroundColor = "#ff0000d3";
                 popMsg.innerHTML = `<div style="font-size: 70px;">&#9888;</div> ` + msg + "\n"
             } else {
-                popMsg.style.backgroundColor = "#00ff0050";
+                popMsg.style.backgroundColor = "#00ff00d3";
                 popMsg.innerHTML = `<div style="font-size: 50px;">&#9432;</div> ` + msg + "\n"
             }
 
