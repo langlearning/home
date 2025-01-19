@@ -2,20 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    
     <title>LangLearn</title>
     <style>
+
+        html {  
+            overflow: hidden;
+            background-color: #0f0f0f;
+        }
+
         body {
             background-color: #0f0f0f;
             align-items: center;
             overflow: hidden;
             font-family: 'Roboto', sans-serif;
+            height: 100vh;
         }
 
         h1 {
             color: white;
             text-align: center;
             margin: 0;
+            font-size: 5vw;
         }
 
         nav, body > div {
@@ -30,9 +40,9 @@
 
         button {
             width: 47%;
-            height: 10%;
+            height: 10vw;
             margin: 15px 0;
-            font-size: 1em;
+            font-size: 2.5vw;
             border-radius: 30px;
             transition: .5s cubic-bezier(.16,1.43,.29,1);
             background-color: black;
@@ -57,18 +67,22 @@
             text-shadow: 0 0 6.96px hsl(0, 0%, 100%, 0.2), 0 0 13.93px hsl(0, 0%, 100%, 1.41), 0 0 27.86px hsl(0, 0%, 100%, 0.7), 0 0 55.72px hsl(0, 0%, 100%, 0.35), 0 0 111.43px hsl(0, 0%, 100%, 0.18), 0 0 222.86px hsl(0, 0%, 100%, 0.09), 0 0 445.72px hsl(0, 0%, 100%, 0.04), 0 0 891.44px hsl(0, 0%, 100%, 0.02), 0 0 1782.89px hsl(0, 0%, 100%, 0.01);
         }
 
-        #back {
-           height: 6%;
-           left: -15%;
-           width: 70px;
-           font-size: 2em;
+        .back {
+           height: 5vw;
+           left: 1%;
+           top: -1.8%;
+           width: 10vw;
+           font-size: 3vw;
            position: absolute;
         }
 
         #wordList, #settings {
             transform: translateX(100vw);
             height: 90vh;
+            width: 70%;
             top: 5%;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         #settings {
@@ -77,8 +91,9 @@
 
         #session {
             transform: scale(0);
-            width: 100%;
-            left: 0;
+            width: 140%;
+            left: -20%;
+            top: 25%;
             transition: .3s cubic-bezier(.16,1.43,.29,1);
             display: flex;
             flex-direction: column;
@@ -89,17 +104,22 @@
             position: relative;
             right: 100%;
             font-size: 30px;
-            height: 40px;
+            height: 40px !important;
             transform: translate(-25%, -40px);
+            height: 6%;
+            left: -15%;
+            width: 70px;
+            font-size: 2em;
         }
 
         #next {
             background-color: rgb(0, 255, 76);
             color: black;
-            font-size: 1.5em;
+            font-size: 6vw;
             font-weight: bold;
             text-shadow: 0 0 20px rgb(0, 0, 0);
-            width: calc(100px + 10%);
+            width: 60vw;
+            height: 15vw;
         }
 
         #session span {
@@ -117,8 +137,8 @@
             color: rgb(163, 163, 163);
         }
 
-        #mainInput {
-            width: fit-content;
+        input {
+            width: 60vw;
             height: 50px;
             font-size: 1.5em;
             text-align: center;
@@ -128,6 +148,10 @@
             outline: 2px solid rgb(99, 99, 99);
             border: none;
             transition: .5s cubic-bezier(.16,1.43,.29,1);
+        }
+
+        #session input {
+            min-height: 65px;
         }
 
         #session input:focus {
@@ -140,6 +164,69 @@
             text-align: center !important;
         }
 
+        #wordList input {
+            width: calc(28vw - 30px);
+            height: 3.5vh;
+            font-size: 16px;
+        }
+
+        #wordList button:not(.back) {
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            margin: 10px 1px;
+        }
+
+        
+        /* width */
+        ::-webkit-scrollbar {
+        width: 10px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+        background: #353535;
+        border-radius: 100px;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 100px;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+        background: #afafaf;
+        }
+
+        #popUp {
+            position: absolute;
+            width: 40vw;
+            left: 28vw;
+            height: fit-content;
+            bottom: 5vh;
+            background-color: #00ff0050;
+            border: 3px solid rgb(0, 0, 0);
+            border-radius: 20px;
+            box-shadow: 0 0 15px black;
+            transform: translateY(70vh);
+            color: white;
+            font-size: 30px;
+            text-align: center;
+            display: none;
+            padding: 1vh 2vw 3vh 2vw;
+        }
+
+        .wordlist {
+            animation: wIn .3s cubic-bezier(0,.43,0,1);
+        }
+
+        @keyframes wIn {
+            0% {transform: translateY(7px) scale(1);}
+            100% {transform: translateY(0) scale(1);}
+        }
+        
     </style>
 </head>
 <body>
@@ -151,22 +238,21 @@
     </nav>
 
     <div id="wordList">
-        <button onclick="transitionScenes('wordList', 'home', 'right');" id="back">&larr;</button>
-        <h1>all words:</h1>
-        <br><br><br><br><br><br><br><br><br><br>
-        <h1>(coming soon)</h1>
+        <button onclick="transitionScenes('wordList', 'home', 'right');" class="back">&larr;</button>
+        <button onclick="addNewWord();" class="back" style="position: absolute; left: calc(20px + 78%); font-size: 4vw;">+</button>
+        <h1>all words:</h1> <br> <br>
     </div>
 
     <div id="settings">
-        <button onclick="transitionScenes('settings', 'home', 'left');" id="back">&larr;</button>
+        <button onclick="transitionScenes('settings', 'home', 'left');" class="back">&larr;</button>
         <h1>settings:</h1>
         <br><br><br><br><br><br><br><br><br><br>
         <h1>(coming soon)</h1>
     </div>
     
     <div id="session">
-        <button onclick="stage=words.length; question=false; next()" id="back">&larr;</button>
-        <button onclick="inverted=!inverted" style="position: absolute; left: calc(30px + 60%); font-size: 20px;" id="back">invert</button>
+        <button onclick="stage=words.length; question=false; next(); popup(true, `session cancelled`)" style="font-size: 25px;" class="back">&larr;</button>
+        <button onclick="inverted=!inverted; popup(false, `translations inverted`, 45)" style="position: absolute; left: calc(30px + 60%); font-size: 20px;" class="back">invert</button>
         <span id="score">0/0</span>
         <span id="q">
             <h2>translate:</h2>
@@ -174,10 +260,18 @@
         </span>
         <input type="text" id="mainInput">
         <button onclick="next()" id="next">next</button>
-
     </div>
 
+    <div id="popUp"></div>
+
     <script>
+        window.onload = function() {
+            document.body.style.display = `none`;
+            setTimeout(() => {
+                document.body.style.display = ``; //idk but sometimes glitches without this
+            }, 10); // 100ms delay
+        };
+
         function saveArrayToLocalStorage(key, array) {
             if (!Array.isArray(array)) {
                 throw new Error("The provided value is not an array.");
@@ -198,8 +292,10 @@
                 return null;
             }
         }
-
-        const words = ["apple|jabłko", "banana|banan", "cherry|wiśnia", "grape|winogrono", "lemon|cytryna", "orange|pomarańcza", "pear|gruszka", "strawberry|truskawka", "watermelon|arbuz"];
+        let words = getArrayFromLocalStorage('words');
+        if (!words || words.length === 0) {
+            words = ['hello|cześć', 'world|świat', 'example|przykład'];
+        }
 
         function transitionScenes(outgoingId, incomingId, direction = 'left', duration = 200) {
             const outgoingElement = document.getElementById(outgoingId);
@@ -227,14 +323,15 @@
 
         function manageOpen() {
             transitionScenes('home', 'wordList', 'left');
+            loadWordList();
         }
         
         function settingsOpen() {
             transitionScenes('home', 'settings', 'right');
         }
 
-        const mainInput = document.getElementById('mainInput');
-        mainInput.addEventListener('keydown', function(event) {
+        document.addEventListener('keydown', function(event) {
+            const mainInput = document.getElementById('mainInput');
             if (event.key === 'Enter') {
                 next();
             }
@@ -247,9 +344,17 @@
         var wordPool = words;
         var incorrectWords = [];
         var randomIndex;
+        var firstTry = 0;
+        var tryOne = true;
+
         function start() {
+            if(words.length==0) {
+                popup(true, "first add words in the 'manage words' section")
+                return;
+            }
             wordPool = [...words];
             stage = 0;
+            tryOne = true;
             incorrectWords = [];
             correct=true;
             question=false;
@@ -271,6 +376,7 @@
                     mainInput.style.outline = '2px solid rgb(0, 255, 76)';
                     correct = true;
                     stage++;
+                    mainInput.disabled = true;
                 } else {
                     mainInput.style.outline = '2px solid rgb(255, 0, 0)';
                     correct = false;
@@ -279,6 +385,9 @@
                 }
             } else {
                 if(stage==words.length) {
+                    if(tryOne){
+                        firstTry = words.length;
+                    };
                     document.getElementById('session').style.transition = `.15s cubic-bezier(.65,0,.84,-0.43)`;
                     document.getElementById('home').style.transition = `.3s cubic-bezier(.16,1.43,.29,1)`;
                     requestAnimationFrame(() => {
@@ -291,6 +400,7 @@
                         document.getElementById('home').style.transition = `.15s cubic-bezier(.65,0,.84,-0.43)`;
                         document.getElementById('session').style.transition = `.3s cubic-bezier(.16,1.43,.29,1)`;
                     }, 200);
+                    popup(false, `congrats!<br>first try: ${firstTry}/${words.length}`)
                     return;
                 }
 
@@ -304,9 +414,14 @@
 
                 mainInput.value = '';
                 mainInput.disabled = false;
+                mainInput.focus();
                 mainInput.style.outline = '2px solid rgb(99, 99, 99)';
                 randomIndex = Math.floor(Math.random() * wordPool.length);
                 if(wordPool.length == 0) {
+                    if(tryOne) {
+                        firstTry = words.length-incorrectWords.length;
+                        tryOne = false;
+                    }
                     wordPool = [...incorrectWords];
                     incorrectWords = [];
                 }
@@ -327,6 +442,150 @@
                 document.getElementById('next').style.width = `${document.getElementById('q').getBoundingClientRect().width}px`;
                 document.getElementById('score').style.width = `${(document.getElementById('q').getBoundingClientRect().width)*.1}px`;
             }
+        }
+
+        const wordListDiv = document.getElementById('wordList');
+        const wleContent = wordListDiv.innerHTML;
+        function loadWordList() {
+            wordListDiv.innerHTML = wleContent;
+            const wordListContent = document.createElement('div');
+            wordListContent.style.textAlign = 'center';
+            wordListContent.style.color = 'white';
+
+            words.forEach((wordPair, index) => {
+            const [word, translation] = wordPair.split('|');
+            const wordElement = document.createElement('div');
+
+            const wordInput = document.createElement('input');
+            wordInput.type = 'text';
+            wordInput.value = word;
+            wordInput.style.marginRight = '10px';
+
+            const translationInput = document.createElement('input');
+            translationInput.type = 'text';
+            translationInput.value = translation;
+
+            const removeButton = document.createElement('button');
+            removeButton.innerHTML = 'x';
+            removeButton.style.marginLeft = '10px';
+            removeButton.style.color = 'red';
+            removeButton.onclick = () => {      
+                const wordPair = `${wordInput.value}|${translationInput.value}`;
+                const wordIndex = words.indexOf(wordPair);
+                if (wordIndex > -1) {
+                    words.splice(wordIndex, 1);
+                    console.log(`word ${wordPair} removed from array`);
+                }
+                saveArrayToLocalStorage('words', words);
+                words = getArrayFromLocalStorage('words');
+                loadWordList();
+            };
+
+            wordInput.addEventListener('input', () => updateWord(index, wordInput.value, translationInput.value));
+            translationInput.addEventListener('input', () => updateWord(index, wordInput.value, translationInput.value));
+
+            wordInput.classList.add('wordlist');
+            translationInput.classList.add('wordlist');
+            removeButton.classList.add('wordlist');
+            wordElement.appendChild(wordInput);
+            wordElement.appendChild(translationInput);
+            wordElement.appendChild(removeButton);
+            wordListContent.appendChild(wordElement);
+            });
+
+            wordListDiv.appendChild(wordListContent);
+        }
+
+        function updateWord(index, newWord, newTranslation) {
+            words[index] = `${newWord}|${newTranslation}`;
+            saveArrayToLocalStorage('words', words);
+        }
+
+        function addNewWord() {
+            const wordListContent = document.querySelector('#wordList > div');
+            const newWordElement = document.createElement('div');
+
+            const newWordInput = document.createElement('input');
+            newWordInput.type = 'text';
+            newWordInput.placeholder = 'New word';
+            newWordInput.style.marginRight = '10px';
+
+            const newTranslationInput = document.createElement('input');
+            newTranslationInput.type = 'text';
+            newTranslationInput.placeholder = 'Translation';
+
+            const removeButton = document.createElement('button');
+            removeButton.innerHTML = 'x';
+            removeButton.style.marginLeft = '10px';
+            removeButton.style.color = 'red';
+            removeButton.onclick = () => {
+                const wordPair = `${newWordInput.value}|${newTranslationInput.value}`;
+                const wordIndex = words.indexOf(wordPair);
+                if (wordIndex > -1) {
+                    words.splice(wordIndex, 1);
+                    console.log(`word ${wordPair} removed from array`);
+                }
+                saveArrayToLocalStorage('words', words);
+                words = getArrayFromLocalStorage('words');
+                loadWordList();
+            };
+
+            newWordInput.addEventListener('input', () => updateNewWord(newWordInput, newTranslationInput));
+            newTranslationInput.addEventListener('input', () => updateNewWord(newWordInput, newTranslationInput));
+
+            newWordInput.classList.add('wordlist');
+            newTranslationInput.classList.add('wordlist');
+            removeButton.classList.add('wordlist');
+            newWordElement.appendChild(newWordInput);
+            newWordElement.appendChild(newTranslationInput);
+            newWordElement.appendChild(removeButton);
+            wordListContent.appendChild(newWordElement);
+        }
+
+        function updateNewWord(wordInput, translationInput) {
+            const newWordPair = `${wordInput.value}|${translationInput.value}`;
+            const existingIndex = words.findIndex(wordPair => {
+                const [word, translation] = wordPair.split('|');
+                return word === wordInput.value || translation === translationInput.value;
+            });
+
+            if (existingIndex !== -1) {
+                words[existingIndex] = newWordPair;
+            } else if (wordInput.value && translationInput.value) {
+                words.push(newWordPair);
+            }
+            saveArrayToLocalStorage('words', words);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const addButton = document.createElement('button');
+            addButton.innerHTML = 'Add New Word';
+            addButton.style.margin = '20px';
+            addButton.onclick = addNewWord;
+            document.getElementById('wordList').appendChild(addButton);
+        });
+
+        const popMsg = document.getElementById('popUp');
+        function popup(error, msg, y=30) {
+            if(error) {
+                popMsg.style.backgroundColor = "#ff000050";
+                popMsg.innerHTML = `<div style="font-size: 70px;">&#9888;</div> ` + msg + "\n"
+            } else {
+                popMsg.style.backgroundColor = "#00ff0050";
+                popMsg.innerHTML = `<div style="font-size: 50px;">&#9432;</div> ` + msg + "\n"
+            }
+
+            popMsg.animate({
+                transform: `translateY(${y}vh)`,
+                display: `block`,
+            }, {duration: 300, fill: "forwards", easing: `cubic-bezier(.19,1.3,.53,1)`})
+
+            setTimeout(() => {
+                popMsg.animate({
+                transform: `translateY(70vh)`,
+                display: `none`,
+                }, {duration: 300, fill: "forwards", easing: `cubic-bezier(.5,0,.53,1)`})
+            }, 3000)
         }
     </script>
 </body>
