@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangLearn</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin: 0;
+        }
+
+        nav, body > div {
+            position: absolute;
+            width: 70%;
+            height: 50%;
+            top: 30%;
+            left: 15%;
+            transition: .15s cubic-bezier(.65,0,.84,-0.43);
+            transform-origin: 50% 20%;
+        }
+
+        button {
+            width: 47%;
+            height: 10%;
+            margin: 15px 0;
+            font-size: 1em;
+            border-radius: 30px;
+            transition: .5s cubic-bezier(.16,1.43,.29,1);
+            background-color: black;
+            box-shadow: 0 3px rgb(151, 151, 151);
+        }
+
+        button:hover, input:hover {
+            background-color: #181818;
+            transform: scale(1.04);
+        }
+
+        button:active, input:active {
+            background-color: #2f2f2f;
+            transform: scale(.95);
+        }
+        
+        #start {
+            width: 100%;
+            height: 20%;
+            font-size: 2em;
+            color: white;
+            text-shadow: 0 0 6.96px hsl(0, 0%, 100%, 0.2), 0 0 13.93px hsl(0, 0%, 100%, 1.41), 0 0 27.86px hsl(0, 0%, 100%, 0.7), 0 0 55.72px hsl(0, 0%, 100%, 0.35), 0 0 111.43px hsl(0, 0%, 100%, 0.18), 0 0 222.86px hsl(0, 0%, 100%, 0.09), 0 0 445.72px hsl(0, 0%, 100%, 0.04), 0 0 891.44px hsl(0, 0%, 100%, 0.02), 0 0 1782.89px hsl(0, 0%, 100%, 0.01);
+        }
+
+        #back {
+           height: 6%;
+           left: -15%;
+           width: 70px;
+           font-size: 2em;
+           position: absolute;
+        }
+
+        #wordList, #settings {
+            transform: translateX(100vw);
+            height: 90vh;
+            top: 5%;
+        }
+
+        #settings {
+            transform: translateX(-100vw);
+        }
+
+        #session {
+            transform: scale(0);
+            width: 100%;
+            left: 0;
+            transition: .3s cubic-bezier(.16,1.43,.29,1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #session button:not(#next) {
+            position: relative;
+            right: 100%;
+            font-size: 30px;
+            height: 40px;
+            transform: translate(-25%, -40px);
+        }
+
+        #next {
+            background-color: rgb(0, 255, 76);
+            color: black;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgb(0, 0, 0);
+            width: calc(100px + 10%);
+        }
+
+        #session span {
+            background-color: rgb(0, 0, 0);
+            margin: 0 0 20px 0;
+            padding: 5px 15% 22px 15%;
+            border-radius: 40px;
+            border: 3px solid white;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px white;
+        }
+
+        #session h2 {
+            color: rgb(163, 163, 163);
+        }
+
+        #mainInput {
+            width: fit-content;
+            height: 50px;
+            font-size: 1.5em;
+            text-align: center;
+            border-radius: 20px;
+            background-color: black;
+            color: white;
+            outline: 2px solid rgb(99, 99, 99);
+            border: none;
+            transition: .5s cubic-bezier(.16,1.43,.29,1);
+        }
+
+        #session input:focus {
+            outline: 3px solid white;
+        }
+
+        #score {
+            margin-bottom: -22px !important;
+            padding: 5px 8% 22px 8% !important;
+            text-align: center !important;
+        }
+
+    </style>
+</head>
+<body>
+    <nav id="home">
+        <button id="start" onclick="start()">start session</button>
+        <br>
+        <button onclick="manageOpen()">manage words</button>
+        <button onclick="settingsOpen()" style="margin-left: 4%">settings</button>
+    </nav>
+
+    <div id="wordList">
+        <button onclick="transitionScenes('wordList', 'home', 'right');" id="back">&larr;</button>
+        <h1>all words:</h1>
+        <br><br><br><br><br><br><br><br><br><br>
+        <h1>(coming soon)</h1>
+    </div>
+
+    <div id="settings">
+        <button onclick="transitionScenes('settings', 'home', 'left');" id="back">&larr;</button>
+        <h1>settings:</h1>
+        <br><br><br><br><br><br><br><br><br><br>
+        <h1>(coming soon)</h1>
+    </div>
+    
+    <div id="session">
+        <button onclick="stage=words.length; question=false; next()" id="back">&larr;</button>
+        <button onclick="inverted=!inverted" style="position: absolute; left: calc(30px + 60%); font-size: 20px;" id="back">invert</button>
+        <span id="score">0/0</span>
+        <span id="q">
+            <h2>translate:</h2>
+            <h1 id="word">example</h1>
+        </span>
+        <input type="text" id="mainInput">
+        <button onclick="next()" id="next">next</button>
+
+    </div>
+
+    <script>
+        function saveArrayToLocalStorage(key, array) {
+            if (!Array.isArray(array)) {
+                throw new Error("The provided value is not an array.");
+            }
+            // Convert the array to a JSON string and save it in localStorage
+            localStorage.setItem(key, JSON.stringify(array));
+        }
+
+        function getArrayFromLocalStorage(key) {
+            const jsonString = localStorage.getItem(key);
+            if (!jsonString) {
+                return null; // Return null if the key does not exist
+            }
+            try {
+                return JSON.parse(jsonString); // Convert the JSON string back to an array
+            } catch (error) {
+                console.error("Error parsing JSON from localStorage", error);
+                return null;
+            }
+        }
+
+        const words = ["apple|jabłko", "banana|banan", "cherry|wiśnia", "grape|winogrono", "lemon|cytryna", "orange|pomarańcza", "pear|gruszka", "strawberry|truskawka", "watermelon|arbuz"];
+
+        function transitionScenes(outgoingId, incomingId, direction = 'left', duration = 200) {
+            const outgoingElement = document.getElementById(outgoingId);
+            const incomingElement = document.getElementById(incomingId);
+
+            if (!outgoingElement || !incomingElement) {
+                console.error("Both elements must exist.");
+                return;
+            }
+
+            // Ensure the incoming element is styled properly for the transition
+            incomingElement.style.transition = `transform ${duration}ms cubic-bezier(.31,0,.28,1)`;
+            outgoingElement.style.transition = `transform ${duration}ms cubic-bezier(.31,0,.28,1)`;
+
+            // Set initial position for incoming element
+            const slideDistance = direction === 'left' ? 100 : -100;
+            incomingElement.style.transform = `translateX(${slideDistance}vw)`;
+
+            // Trigger animation
+            requestAnimationFrame(() => {
+                outgoingElement.style.transform = `translateX(${-(Number(slideDistance))}vw)`;
+                incomingElement.style.transform = "translateX(0)";
+            });
+        }
+
+        function manageOpen() {
+            transitionScenes('home', 'wordList', 'left');
+        }
+        
+        function settingsOpen() {
+            transitionScenes('home', 'settings', 'right');
+        }
+
+        const mainInput = document.getElementById('mainInput');
+        mainInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                next();
+            }
+        });
+
+        var inverted = false;
+        var stage = 0;
+        var question = false; 
+        var correct = true;
+        var wordPool = words;
+        var incorrectWords = [];
+        var randomIndex;
+        function start() {
+            wordPool = [...words];
+            stage = 0;
+            incorrectWords = [];
+            correct=true;
+            question=false;
+            next(true); // cuz its the first 'next()'
+
+            requestAnimationFrame(() => {
+                document.getElementById('home').style.transform = 'scale(0)';
+            });
+            setTimeout(() => {
+                document.getElementById('session').style.transform = 'scale(1)';
+            }, 150);
+        }
+
+
+        
+        function next(start) {
+            if(question) {
+                if(mainInput.value.toLowerCase() == currentTranslation.toLowerCase()) {
+                    mainInput.style.outline = '2px solid rgb(0, 255, 76)';
+                    correct = true;
+                    stage++;
+                } else {
+                    mainInput.style.outline = '2px solid rgb(255, 0, 0)';
+                    correct = false;
+                    mainInput.value = currentTranslation;
+                    mainInput.disabled = true;
+                }
+            } else {
+                if(stage==words.length) {
+                    document.getElementById('session').style.transition = `.15s cubic-bezier(.65,0,.84,-0.43)`;
+                    document.getElementById('home').style.transition = `.3s cubic-bezier(.16,1.43,.29,1)`;
+                    requestAnimationFrame(() => {
+                        document.getElementById('session').style.transform = 'scale(0)';
+                    });
+                    setTimeout(() => {
+                        document.getElementById('home').style.transform = 'scale(1)';
+                    }, 150);
+                    setTimeout(() => {
+                        document.getElementById('home').style.transition = `.15s cubic-bezier(.65,0,.84,-0.43)`;
+                        document.getElementById('session').style.transition = `.3s cubic-bezier(.16,1.43,.29,1)`;
+                    }, 200);
+                    return;
+                }
+
+                if(!correct) {
+                    incorrectWords.push(wordPool[randomIndex]);
+                    console.log(`${wordPool[randomIndex]} added to incorrectWords`);
+                }
+                if(start!=true){
+                    wordPool.splice(randomIndex, 1);
+                }
+
+                mainInput.value = '';
+                mainInput.disabled = false;
+                mainInput.style.outline = '2px solid rgb(99, 99, 99)';
+                randomIndex = Math.floor(Math.random() * wordPool.length);
+                if(wordPool.length == 0) {
+                    wordPool = [...incorrectWords];
+                    incorrectWords = [];
+                }
+                if(inverted) {
+                    currentWord = wordPool[randomIndex].split('|')[0];
+                    currentTranslation = wordPool[randomIndex].split('|')[1];
+                } else {
+                    currentWord = wordPool[randomIndex].split('|')[1];
+                    currentTranslation = wordPool[randomIndex].split('|')[0];
+                }
+
+                document.getElementById('word').innerText = currentWord;
+            }
+            question = !question;
+            document.getElementById('score').innerText = `${stage}/${words.length}`;
+            if(document.getElementById('q').getBoundingClientRect().width!=0) {
+                mainInput.style.width = `${document.getElementById('q').getBoundingClientRect().width}px`;
+                document.getElementById('next').style.width = `${document.getElementById('q').getBoundingClientRect().width}px`;
+                document.getElementById('score').style.width = `${(document.getElementById('q').getBoundingClientRect().width)*.1}px`;
+            }
+        }
+    </script>
+</body>
+</html>
